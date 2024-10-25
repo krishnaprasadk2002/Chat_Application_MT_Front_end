@@ -8,3 +8,7 @@ export interface User {
     password?: string
     imageUrl?: string;
   }
+
+   export interface userResponse {
+    data: User[];
+  }

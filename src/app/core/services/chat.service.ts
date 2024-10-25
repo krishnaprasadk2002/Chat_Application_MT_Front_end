@@ -48,6 +48,27 @@ export class ChatService {
       })
     );
   }
+
+  getUserId():Observable<{ success: boolean; message: string; userId: string }> {
+    const api:string =`${this.baseUrl}${UserAPIEndUrl.GET_USER_ID}`;
+    return this.httpClient.get<{ success: boolean; message: string; userId: string }> (api).pipe(
+      catchError(error => {
+        console.error('Error getting userId', error);
+        return throwError(error);
+      })
+    )
+  }
+
+  getReceiverDataProfile(userId: string): Observable<userResponse> {
+    const api: string = `${this.baseUrl}${UserAPIEndUrl.GET_RECEIVER_PROFILE}`
+    return this.httpClient.get<userResponse>(api,{params:{userId}}).pipe(
+      catchError(error => {
+        console.error('Error getting receiver data', error);
+        return throwError(error);
+      })
+    );
+  }
+  
   
   
 }

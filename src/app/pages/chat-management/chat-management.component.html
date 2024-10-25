@@ -32,7 +32,7 @@
                 </div>
 
                 <!-- Contacts -->
-                <div *ngFor="let user of Users" class="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer">
+                <div *ngFor="let user of Users" class="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer" (click)="onUserClick(user._id!)">
                     <div>
                         <img class="h-12 w-12 rounded-full" [src]="user.imageUrl || 'default-image-url.jpg'" alt="{{user.name}}"/>
                     </div>
@@ -51,20 +51,17 @@
             <div class="w-2/3 border flex flex-col">
 
                 <!-- Header -->
-                <div class="py-2 px-3 bg-grey-lighter flex flex-row justify-between items-center">
-                    <div class="flex items-center">
-                        <div>
-                            <img class="w-10 h-10 rounded-full" src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"/>
+                <div class="py-2 px-3 bg-grey-lighter" *ngFor="let user of receiverData">
+                    <div class="flex flex-row justify-between items-center">
+                        <div class="flex items-center">
+                            <div>
+                                <img class="w-10 h-10 rounded-full" src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"/>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-grey-darkest">{{ user.name }}</p>
+                                <p class="text-grey-darker text-xs mt-1">{{ user.email }}</p>
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-grey-darkest">
-                                New Movie! Expendables 4
-                            </p>
-                            <p class="text-grey-darker text-xs mt-1">
-                                Andrés, Tom, Harrison, Arnold, Sylvester
-                            </p>
-                        </div>
-                    </div>
 
                     <div class="flex">
                         <div>

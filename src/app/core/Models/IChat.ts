@@ -6,7 +6,7 @@ import { User } from "./user.model";
 export interface IChat {
     _id: string;
     chatId: string;
-    participants: string[]; // User IDs
+    participants: string[];
     type: "one-to-one" | "group";
     groupName?: string;
     groupProfilePicture?: {
@@ -19,6 +19,7 @@ export interface IChat {
 }
 
 export interface IChatWithParticipantDetails extends IChat {
+    [x: string]: any;
     participantsData: User[];
     lastMessageData: IMessage;
     unReadMessages: number;

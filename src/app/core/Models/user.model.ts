@@ -7,6 +7,7 @@ export interface User {
     status?: boolean;
     password?: string
     imageUrl?: string;
+    createdAt?:Date;
   }
 
    export interface userResponse {

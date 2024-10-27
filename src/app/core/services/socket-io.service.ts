@@ -13,31 +13,52 @@ export class SocketIoService {
 
   constructor() {
     this.socketio = socketio(environment.baseUrl, {
-      withCredentials: true
+      withCredentials: true,
+      reconnection: true,
+      reconnectionDelay: 1000
     });
 
-    
-    // Listen for the connection event
+    // Listen for connection success
+    this.socketio.on("connect", () => {
+      this.connectedSubject.next(true);
+      console.log('Connected to WebSocket server');
+    });
+
+    // Listen for reconnection attempts
+    this.socketio.on('reconnect_attempt', (attempt) => {
+      console.log(`Reconnection attempt #${attempt}`);
+    });
+
+    // Listen for reconnection success
+    this.socketio.on('reconnect', () => {
+      this.connectedSubject.next(true);
+      console.log('Reconnected to WebSocket server');
+    });
+
+    // Listen for connection errors
     this.socketio.on("connect_error", (err) => {
-      console.log('error', err);
-    });
-
-    // Listen for the disconnect event
-    this.socketio.on('disconnect', () => {
-      this.connectedSubject.next(false);
-      console.log('Disconnected from WebSocket server');
+      console.error('Connection error', err);
     });
   }
 
-  emit<T>(event: string, payload: T) {
-    this.socketio.emit(event, payload);
+  emit<T>(event: string, payload: T): void {
+    try {
+      this.socketio.emit(event, payload);
+    } catch (error) {
+      console.error(`Error emitting event ${event}:`, error);
+    }
   }
 
   on<T>(event: string): Observable<T> {
     return new Observable<T>(observer => {
-      this.socketio.on(event, (response: T) => {
-        observer.next(response);
-      });
+      try {
+        this.socketio.on(event, (response: T) => {
+          observer.next(response);
+        });
+      } catch (error) {
+        console.error(`Error listening to event ${event}:`, error);
+        observer.error(error);
+      }
     });
   }
 }

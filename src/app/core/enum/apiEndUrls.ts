@@ -5,7 +5,7 @@ export enum UserAPIEndUrl {
     CREATE_NEW_CHAT = "/user/createnewchat",
     GET_ALL_CHATS = "/user/chats",
     GET_MESSAGES_OF_CHAT = "/user/messages/",
-    SEND_MESSAGE = "/user/sendmessage/",
+    SEND_MESSAGE = "/user/sendmessage",
     CREATE_NEW_GROUP = "/user/createnewgroupchat",
     GET_USER_ID="/user/getuserid",
     GET_RECEIVER_PROFILE='/user/receiverData'

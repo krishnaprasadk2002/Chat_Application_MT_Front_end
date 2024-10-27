@@ -1,18 +1,20 @@
 import { User } from "./user.model";
 
 export interface IMessage {
-    _id: string;
+    _id?: string;
     chatId: string;
     senderId: string;
-    content?: string;
+    receiverId: string;
+    message: string; 
     file?: {
-        key: string,
-        url: string
+        key: string;
+        url: string;
     };
     type: "text" | "image" | "video" | "document";
     isRead: boolean;
     createdAt: Date;
 }
+
 
 export interface IMessageWithSenderDetails extends IMessage {
     senderData: User;

@@ -6,6 +6,7 @@ import { ICreateNewChatSuccessfullAPIResponse } from '../Models/IChatResponses';
 import { UserAPIEndUrl } from '../enum/apiEndUrls';
 import { IMessage } from '../Models/IMessage';
 import { userResponse } from '../Models/user.model';
+import { SocketIoService } from './socket-io.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,14 +14,15 @@ import { userResponse } from '../Models/user.model';
 export class ChatService {
 
   private httpClient: HttpClient = inject(HttpClient);
-  private baseUrl:string = environment.baseUrl;
+  private baseUrl: string = environment.baseUrl;
 
   constructor() { }
+  private socketIoService = inject(SocketIoService)
 
-  createNewChat(reciverId: string): Observable<ICreateNewChatSuccessfullAPIResponse>{
-    const api:string =`${this.baseUrl}/${UserAPIEndUrl.CREATE_NEW_CHAT}`
-  
-    return this.httpClient.post<ICreateNewChatSuccessfullAPIResponse>(api,{reciverId}).pipe(
+  createNewChat(reciverId: string): Observable<ICreateNewChatSuccessfullAPIResponse> {
+    const api: string = `${this.baseUrl}${UserAPIEndUrl.CREATE_NEW_CHAT}`
+
+    return this.httpClient.post<ICreateNewChatSuccessfullAPIResponse>(api, { reciverId }).pipe(
       catchError(error => {
         console.error('Error creating chat:', error);
         return throwError(error);
@@ -28,14 +30,19 @@ export class ChatService {
     );
   }
 
-  sendMessage(message: string): Observable<IMessage> {
-    const api: string = `${this.baseUrl}${UserAPIEndUrl.SEND_MESSAGE}`;
-    return this.httpClient.post<IMessage>(api, { message }).pipe(
-      catchError(error => {
-        console.error('Error sending message', error);
-        return throwError(error);
-      })
-    );
+
+  // Listen for new messages via WebSocket
+  onNewMessage(): Observable<IMessage> {
+    return this.socketIoService.on<IMessage>('receiveMessage');
+}
+  // Listen chat history
+  onChatHistoryFetched(): Observable<IMessage[]> {
+    return this.socketIoService.on<IMessage[]>('messagesFetched');
+  }
+
+  // Fetch chat history 
+  fetchChatHistory(chatId: string): void {
+    this.socketIoService.emit('fetchMessages', chatId);
   }
 
 
@@ -49,9 +56,9 @@ export class ChatService {
     );
   }
 
-  getUserId():Observable<{ success: boolean; message: string; userId: string }> {
-    const api:string =`${this.baseUrl}${UserAPIEndUrl.GET_USER_ID}`;
-    return this.httpClient.get<{ success: boolean; message: string; userId: string }> (api).pipe(
+  getUserId(): Observable<{ success: boolean; message: string; userId: string }> {
+    const api: string = `${this.baseUrl}${UserAPIEndUrl.GET_USER_ID}`;
+    return this.httpClient.get<{ success: boolean; message: string; userId: string }>(api).pipe(
       catchError(error => {
         console.error('Error getting userId', error);
         return throwError(error);
@@ -61,14 +68,14 @@ export class ChatService {
 
   getReceiverDataProfile(userId: string): Observable<userResponse> {
     const api: string = `${this.baseUrl}${UserAPIEndUrl.GET_RECEIVER_PROFILE}`
-    return this.httpClient.get<userResponse>(api,{params:{userId}}).pipe(
+    return this.httpClient.get<userResponse>(api, { params: { userId } }).pipe(
       catchError(error => {
         console.error('Error getting receiver data', error);
         return throwError(error);
       })
     );
   }
-  
-  
-  
+
+
+
 }

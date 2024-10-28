@@ -8,5 +8,6 @@ export enum UserAPIEndUrl {
     SEND_MESSAGE = "/user/sendmessage",
     CREATE_NEW_GROUP = "/user/createnewgroupchat",
     GET_USER_ID="/user/getuserid",
-    GET_RECEIVER_PROFILE='/user/receiverData'
+    GET_RECEIVER_PROFILE='/user/receiverData',
+    LOAD_GROUP='/user/groups'
 }

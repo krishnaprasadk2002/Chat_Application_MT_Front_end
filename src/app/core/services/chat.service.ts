@@ -30,6 +30,27 @@ export class ChatService {
     );
   }
 
+  createGroupChat(groupName: string, members: string[]): Observable<ICreateNewChatSuccessfullAPIResponse> {
+    const api: string = `${this.baseUrl}${UserAPIEndUrl.CREATE_NEW_GROUP}`; 
+
+    return this.httpClient.post<ICreateNewChatSuccessfullAPIResponse>(api, { groupName, members }).pipe(
+      catchError(error => {
+        console.error('Error creating group chat:', error);
+        return throwError(error);
+      })
+    );
+  }
+  getUserGroupChats(): Observable<userResponse> {
+    const api: string = `${this.baseUrl}${UserAPIEndUrl.LOAD_GROUP}`; 
+
+    return this.httpClient.get<userResponse>(api).pipe(
+      catchError(error => {
+        console.error('Error getting groups:', error);
+        return throwError(error);
+      })
+    );
+  }
+
 
   // Listen for new messages via WebSocket
   onNewMessage(): Observable<IMessage> {

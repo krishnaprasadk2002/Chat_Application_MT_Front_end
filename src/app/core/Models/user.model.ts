@@ -8,6 +8,7 @@ export interface User {
     password?: string
     imageUrl?: string;
     createdAt?:Date;
+    selected?:boolean
   }
 
    export interface userResponse {

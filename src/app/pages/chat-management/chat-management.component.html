@@ -1,238 +1,206 @@
-<div class="w-full h-32" style="background-color: #449388"></div>
-
-<div class="container mx-auto" style="margin-top: -128px;">
-    <div class="py-6 h-screen">
-        <div class="flex border border-grey rounded shadow-lg h-full">
-
-            <!-- Left -->
-            <div class="w-1/3 border flex flex-col">
-
-                <!-- Header -->
-                <div class="py-2 px-3 bg-grey-lighter flex flex-row justify-between items-center">
-                    <div>
-                        <img class="w-10 h-10 rounded-full" src="http://andressantibanez.com/res/avatar.png"/>
-                    </div>
-
-                    <div class="flex">
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#727A7E" d="M12 20.664a9.163 9.163 0 0 1-6.521-2.702.977.977 0 0 1 1.381-1.381 7.269 7.269 0 0 0 10.024.244.977.977 0 0 1 1.313 1.445A9.192 9.192 0 0 1 12 20.664zm7.965-6.112a.977.977 0 0 1-.944-1.229 7.26 7.26 0 0 0-4.8-8.804.977.977 0 0 1 .594-1.86 9.212 9.212 0 0 1 6.092 11.169.976.976 0 0 1-.942.724zm-16.025-.39a.977.977 0 0 1-.953-.769 9.21 9.21 0 0 1 6.626-10.86.975.975 0 1 1 .52 1.882l-.015.004a7.259 7.259 0 0 0-5.223 8.558.978.978 0 0 1-.955 1.185z"></path></svg>
-                        </div>
-                        <div class="ml-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path opacity=".55" fill="#263238" d="M19.005 3.175H4.674C3.642 3.175 3 3.789 3 4.821V21.02l3.544-3.514h12.461c1.033 0 2.064-1.06 2.064-2.093V4.821c-.001-1.032-1.032-1.646-2.064-1.646zm-4.989 9.869H7.041V11.1h6.975v1.944zm3-4H7.041V7.1h9.975v1.944z"></path></svg>
-                        </div>
-                        <div class="ml-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#263238" fill-opacity=".6" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search -->
-                <div class="py-2 px-2 bg-grey-lightest">
-                    <input type="text" class="w-full px-2 py-2 text-sm" placeholder="Search or start new chat"/>
-                </div>
-
-                <!-- Contacts -->
-                <div *ngFor="let user of Users" class="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer" (click)="onUserClick(user._id!)">
-                    <div>
-                        <img class="h-12 w-12 rounded-full" [src]="user.imageUrl || 'default-image-url.jpg'" alt="{{user.name}}"/>
-                    </div>
-                    <div class="ml-4 flex-1 border-b border-gray-300 py-4">
-                        <div class="flex items-center justify-between">
-                            <p class="text-gray-800">{{ user.name }}</p>
-                            <p class="text-xs text-gray-600">12:45 pm</p>
-                        </div>
-                        <p class="text-gray-700 mt-1 text-sm">Some status message</p>
-                    </div>
-                </div>
+<div class="container mx-auto px-4 py-6 h-full">
+    <div class="flex h-full bg-white rounded-lg shadow-lg overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="w-1/4 border-r border-gray-200 bg-white">
+        <!-- User Profile -->
+        <div class="p-4 border-b border-gray-200">
+          <div class="flex items-center space-x-4">
+            <img src="/api/placeholder/40/40" alt="Current user" class="w-10 h-10 rounded-full" />
+            <div class="flex-1">
+              <h3 class="text-gray-800 font-semibold">John Doe</h3>
+              <p class="text-sm text-gray-600">Online</p>
             </div>
-
-
-            <!-- Right -->
-            <div class="w-2/3 border flex flex-col">
-
-                <!-- Header -->
-                <div class="py-2 px-3 bg-grey-lighter" *ngFor="let user of receiverData">
-                    <div class="flex flex-row justify-between items-center">
-                        <div class="flex items-center">
-                            <div>
-                                <img class="w-10 h-10 rounded-full" src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"/>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-grey-darkest">{{ user.name }}</p>
-                                <p class="text-grey-darker text-xs mt-1">{{ user.email }}</p>
-                            </div>
-                        </div>
-
-                    <div class="flex">
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#263238" fill-opacity=".5" d="M15.9 14.3H15l-.3-.3c1-1.1 1.6-2.7 1.6-4.3 0-3.7-3-6.7-6.7-6.7S3 6 3 9.7s3 6.7 6.7 6.7c1.6 0 3.2-.6 4.3-1.6l.3.3v.8l5.1 5.1 1.5-1.5-5-5.2zm-6.2 0c-2.6 0-4.6-2.1-4.6-4.6s2.1-4.6 4.6-4.6 4.6 2.1 4.6 4.6-2 4.6-4.6 4.6z"></path></svg>
-                        </div>
-                        <div class="ml-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#263238" fill-opacity=".5" d="M1.816 15.556v.002c0 1.502.584 2.912 1.646 3.972s2.472 1.647 3.974 1.647a5.58 5.58 0 0 0 3.972-1.645l9.547-9.548c.769-.768 1.147-1.767 1.058-2.817-.079-.968-.548-1.927-1.319-2.698-1.594-1.592-4.068-1.711-5.517-.262l-7.916 7.915c-.881.881-.792 2.25.214 3.261.959.958 2.423 1.053 3.263.215l5.511-5.512c.28-.28.267-.722.053-.936l-.244-.244c-.191-.191-.567-.349-.957.04l-5.506 5.506c-.18.18-.635.127-.976-.214-.098-.097-.576-.613-.213-.973l7.915-7.917c.818-.817 2.267-.699 3.23.262.5.501.802 1.1.849 1.685.051.573-.156 1.111-.589 1.543l-9.547 9.549a3.97 3.97 0 0 1-2.829 1.171 3.975 3.975 0 0 1-2.83-1.173 3.973 3.973 0 0 1-1.172-2.828c0-1.071.415-2.076 1.172-2.83l7.209-7.211c.157-.157.264-.579.028-.814L11.5 4.36a.572.572 0 0 0-.834.018l-7.205 7.207a5.577 5.577 0 0 0-1.645 3.971z"></path></svg>
-                        </div>
-                        <div class="ml-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#263238" fill-opacity=".6" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Messages -->
-                <div class="flex-1 overflow-auto" style="background-color: #DAD3CC">
-                    <div class="py-2 px-3">
-
-                        <div class="flex justify-center mb-2">
-                            <div class="rounded py-2 px-4" style="background-color: #DDECF2">
-                                <p class="text-sm uppercase">
-                                    February 20, 2018
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-center mb-4">
-                            <div class="rounded py-2 px-4" style="background-color: #FCF4CB">
-                                <p class="text-xs">
-                                    Messages to this chat and calls are now secured with end-to-end encryption. Tap for more info.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-teal">
-                                    Sylverter Stallone
-                                </p>
-                                <p class="text-sm mt-1">
-                                    Hi everyone! Glad you could join! I am making a new movie.
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-purple">
-                                    Tom Cruise
-                                </p>
-                                <p class="text-sm mt-1">
-                                    Hi all! I have one question for the movie
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-orange">
-                                    Harrison Ford
-                                </p>
-                                <p class="text-sm mt-1">
-                                    Again?
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-orange">
-                                    Russell Crowe
-                                </p>
-                                <p class="text-sm mt-1">
-                                    Is Andrés coming for this one?
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-teal">
-                                    Sylverter Stallone
-                                </p>
-                                <p class="text-sm mt-1">
-                                    He is. Just invited him to join.
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #E2F7CB">
-                                <p class="text-sm mt-1">
-                                    Hi guys.
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #E2F7CB">
-                                <p class="text-sm mt-1">
-                                    Count me in
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex mb-2">
-                            <div class="rounded py-2 px-3" style="background-color: #F2F2F2">
-                                <p class="text-sm text-purple">
-                                    Tom Cruise
-                                </p>
-                                <p class="text-sm mt-1">
-                                    Get Andrés on this movie ASAP!
-                                </p>
-                                <p class="text-right text-xs text-grey-dark mt-1">
-                                    12:45 pm
-                                </p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Input -->
-                <div class="bg-grey-lighter px-4 py-4 flex items-center">
-                    <div aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                            <path opacity=".45" fill="#263238" d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s3.942-9.548 9.215-9.548 9.548 4.275 9.548 9.548c-.001 5.272-4.109 9.159-9.382 9.159zm3.108-9.751c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1 mx-4">
-                        <input 
-                            [(ngModel)]="Message" 
-                            class="w-full border rounded px-2 py-2" 
-                            type="text" 
-                            placeholder="Type your message" 
-                            aria-label="Message input"
-                        />
-                    </div>
-                    <div>
-                        <button 
-                            (click)="sendMessage()" 
-                            aria-label="Send Message" 
-                            class="flex items-center justify-center p-2 bg-blue-500 rounded-full hover:bg-blue-600"
-                        >Send
-                        </button>
-                    </div>
-                </div>
-                
-            </div>
-
+            <button class="text-gray-500 hover:text-gray-700" aria-label="Settings">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+              </svg>
+            </button>
+          </div>
         </div>
+  
+        <!-- Search -->
+        <div class="p-4 border-b border-gray-200">
+          <div class="relative">
+            <input type="text" placeholder="Search chats" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" aria-label="Search chats" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+  
+        <!-- Chat List -->
+        <div class="overflow-y-auto h-[calc(100%-160px)] p-4 space-y-2">
+            <!-- User List -->
+            <div *ngFor="let user of Users" class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all duration-200" [class.bg-blue-100]="selectedUserId === user._id" (click)="onUserChange(user._id!)">
+              <div class="relative flex-shrink-0">
+                <img [src]="user.imageUrl || '/api/placeholder/48/48'" [alt]="user.name" class="w-12 h-12 rounded-full" />
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+              <div class="flex-1 min-w-0 ml-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-base font-semibold text-gray-900 truncate">{{ user.name }}</h4>
+                  <span class="text-xs text-gray-500">{{ user.createdAt | date:'short' }}</span>
+                </div>
+                <p class="text-sm text-gray-600 truncate">Last message preview...</p>
+              </div>
+            </div>
+          
+            <!-- Group Chats Section -->
+            <section class="group-chats mt-6">
+              <h2 class="text-lg font-semibold text-gray-800">Group Chats</h2>
+              <ul class="mt-2 space-y-2">
+                <li *ngFor="let group of groupChats" class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-100 transition-all duration-200">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-gray-900">{{ group.groupName }}</h3>
+                    <p class="text-sm text-gray-600">
+                      Members: 
+                      <span *ngFor="let member of group.members; let isLast = last">
+                        {{ member.name }}<span *ngIf="!isLast">, </span>
+                      </span>
+                    </p>
+                  </div>
+                  <button (click)="selectGroupChat(group.chatId)" class="text-blue-500 font-medium hover:underline">Open</button>
+                </li>
+              </ul>
+            </section>
+          
+            <!-- Create Group Button -->
+            <button (click)="openOrCloseNewChatOrGroupChatModal()" class="mt-4 bg-green-500 text-white rounded-lg px-4 py-2 shadow-lg hover:bg-green-600 transition-all duration-200" aria-label="Create Group">
+              Create Group
+            </button>
+          </div>
+          
+      </aside>
+  
+      <!-- Chat Area -->
+      <main class="flex-1 flex flex-col">
+        <!-- Chat Header -->
+        <header class="p-4 border-b border-gray-200 bg-white">
+          <ng-container *ngIf="receiverData[0]">
+            <div class="flex items-center space-x-4">
+              <img *ngIf="receiverData[0]" [src]="receiverData[0].imageUrl || '/api/placeholder/40/40'" [alt]="receiverData[0].name" class="w-10 h-10 rounded-full" />
+              <div class="flex-1">
+                <h3 class="text-gray-800 font-semibold">{{ receiverData[0].name || 'Select a chat' }}</h3>
+                <p class="text-sm text-gray-600">{{ receiverData[0].email || '' }}</p>
+              </div>
+              <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-gray-700" aria-label="More options">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </header>
+  
+        <!-- Messages -->
+        <section class="flex-1 overflow-y-auto bg-gray-50 p-4">
+          <div *ngIf="chatHistory.length === 0" class="text-center text-gray-500 py-6">
+            No messages
+          </div>
+          
+          <div *ngFor="let message of chatHistory; trackBy: trackByMessageId" class="mb-4">
+            <div [class]="message.senderId === currentUserId ? 'flex justify-end' : 'flex justify-start'">
+              <div [class]="message.senderId === currentUserId ? 'max-w-md bg-blue-500 text-white rounded-lg px-4 py-2' : 'max-w-md bg-white rounded-lg px-4 py-2 shadow'">
+                <div *ngIf="message.senderId !== currentUserId" class="text-xs text-gray-500 mb-1">
+                  {{ getUserNameById(message.senderId) }}
+                </div>
+                <p class="text-sm">{{ message.message }}</p>
+                <div class="text-xs mt-1" [class]="message.senderId === currentUserId ? 'text-blue-100' : 'text-gray-500'">
+                  {{ message.createdAt | date:'shortTime' }}
+                </div>
+              </div>
+            </div>
+             <!-- Create Group Button -->
+          </div>
+        </section>
+  
+        <!-- Input Area -->
+        <div class="p-4 bg-white border-t border-gray-200">
+          <div class="flex items-center space-x-4">
+            <button class="text-gray-500 hover:text-gray-700" aria-label="Add attachment">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <input
+              [(ngModel)]="Message"
+              type="text"
+              placeholder="Type a message..."
+              class="flex-1 pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+              aria-label="Type a message"
+            />
+            <button (click)="sendMessage()" class="bg-blue-500 text-white rounded-lg px-4 py-2" aria-label="Send message">Send</button>
+          </div>
+        </div>
+      </main>
     </div>
-</div>
+
+
+    <!-- group modal -->
+  
+    <div *ngIf="isCreateGroupModalOpen" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full m-4">
+          <h2 class="text-xl font-semibold mb-4">Create Group Chat</h2>
+          
+          <form (ngSubmit)="createNewGroup()">
+            <div class="mb-4">
+                <label for="groupName" class="block text-sm font-medium text-gray-700">Group Name</label>
+                <input 
+                    type="text" 
+                    id="groupName" 
+                    name="groupName"
+                    [(ngModel)]="groupName"
+                    required
+                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+        
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
+                <div class="max-h-48 overflow-y-auto">
+                    <div *ngFor="let user of availableUsers" class="flex items-center mt-2">
+                        <input 
+                            type="checkbox"
+                            [id]="'user-' + user._id"
+                            name="selectedUsers"
+                            [(ngModel)]="user.selected" 
+                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label [for]="'user-' + user._id" class="ml-2 text-sm text-gray-700">
+                            {{ user.name }}
+                        </label>
+        
+                        <!-- User Details Display -->
+                        <div *ngIf="user.selected" class="mt-2 p-2 border rounded bg-gray-100">
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Mobile:</strong> {{ user.mobile }}</p>
+                            <p><strong>Status:</strong> {{ user.status ? 'Active' : 'Inactive' }}</p>
+                            <img *ngIf="user.imageUrl" [src]="user.imageUrl" alt="{{ user.name }}'s image" class="w-16 h-16 rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="flex justify-end space-x-2">
+                <button 
+                    type="button"
+                    (click)="openOrCloseNewChatOrGroupChatModal()"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Create Group
+                </button>
+            </div>
+        </form>
+        
+        </div>
+      </div>
+      
+  

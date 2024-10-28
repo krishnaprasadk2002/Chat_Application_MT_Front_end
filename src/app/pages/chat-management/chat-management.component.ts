@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, NgZone, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { SocketIoService } from '../../core/services/socket-io.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChatService } from '../../core/services/chat.service';
@@ -8,7 +8,8 @@ import { User, userResponse } from '../../core/Models/user.model';
 import { IChatWithParticipantDetails } from '../../core/Models/IChat';
 import { ICreateNewChatSuccessfullAPIResponse } from '../../core/Models/IChatResponses';
 import { IMessage } from '../../core/Models/IMessage';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { log } from 'console';
 
 @Component({
   selector: 'app-chat-management',
@@ -17,7 +18,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './chat-management.component.html',
   styleUrl: './chat-management.component.css'
 })
-export class ChatManagementComponent implements OnInit {
+export class ChatManagementComponent implements OnInit, AfterViewInit, OnDestroy {
   isConnected: boolean = false;
   Message!: string;
   Users: User[] = [];
@@ -25,44 +26,96 @@ export class ChatManagementComponent implements OnInit {
   selectedUserId: string | undefined;
   currentUserId: string | undefined;
   currentChatId!: string;
-  messages: IMessage[] = []; // Array to hold chat messages
+  messages: IMessage[] = []; 
   loading: boolean = false;
   private subscriptions: Subscription = new Subscription();
-  chatHistory:any[] =[]
+  chatHistory: IMessage[] = [];
+  newGroupChatModal: boolean = false;
+  isCreateGroupModalOpen: boolean = false;
+  newGroupForm!: FormGroup;
+  groupMembers: string[] = [];
+  availableUsers: User[] = [];
+  groupName!:string
+  groupChats:any[]=[]
+  
 
-  constructor(
-    private socketService: SocketIoService,
-    private http: HttpClient,
-    private chatService: ChatService
-  ) { }
+  @ViewChild('chatContainer') private chatContainer!: ElementRef;
+  @ViewChild('createGroupModal') createGroupModal!: TemplateRef<any>;
 
-  ngOnInit() {
-    this.subscriptions.add(
-      this.socketService.connected$.subscribe(connected => {
-        this.isConnected = connected;
-      })
-    );
+ // Observable to track selected user changes
+ private selectedUserSubject = new Subject<string>();
 
-    this.getAllUsers();
-    this.getUserId();
-    this.ReceivingMessage()
+ constructor(
+   private socketService: SocketIoService,
+   private chatService: ChatService,
+   private ngZone: NgZone 
+ ) { 
+   this.newGroupForm = new FormGroup({
+     groupName: new FormControl("", [Validators.required])
+   });
+ }
 
+ ngOnInit() {
+  this.subscriptions.add(
+    this.socketService.connected$.subscribe(connected => {
+      this.isConnected = connected;
+    })
+  );
 
-    // // Listen for new messages
-    // this.subscriptions.add(this.chatService.onNewMessage().subscribe(message => {
-    //   console.log('New message received:', message);
-    //   this.messages.push(message); 
-    // }));
+  // Subscribe to selected user changes
+  this.subscriptions.add(
+    this.selectedUserSubject.asObservable().subscribe((userId: string) => {
+      this.onUserChange(userId);
+    })
+  );
 
-    // Listen for chat history
-    this.subscriptions.add(this.chatService.onChatHistoryFetched().subscribe(messages => {
+  this.getAllUsers();
+  this.getUserId();
+  this.ReceivingMessage();
+  this.getUsersDetailsUsingGroup()
+  this.getUserGroupChats()
+
+  // Listen for chat history
+  this.subscriptions.add(
+    this.chatService.onChatHistoryFetched().subscribe(messages => {
       console.log('Chat history fetched:', messages);
-      this.messages = messages; 
-    }));
-  }
+      this.chatHistory.push(...messages);
+    })
+  );
+}
+ngAfterViewInit(): void {
+  this.scrollToBottom()
+}
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
+private scrollToBottom(): void {
+  if (this.chatContainer && this.chatContainer.nativeElement) {
+    try {
+      this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+    } catch (err) {
+      console.error('Scroll error:', err);
+    }
+  }
+}
+
+ngOnDestroy() {
+  this.subscriptions.unsubscribe();
+}
+
+
+  // Call this method when a user is clicked
+  onUserChange(userId: string) {
+    this.selectedUserId = userId;
+    this.messages = [];
+    this.chatHistory = [];
+    this.createChat(userId);
+
+    // Fetch receiver profile
+    this.chatService.getReceiverDataProfile(userId).subscribe({
+      next: (res: userResponse) => {
+        this.receiverData = Array.isArray(res.data) ? res.data : [res.data];
+      },
+      error: this.handleError
+    });
   }
 
   createChat(receiverId: string): void {
@@ -73,12 +126,13 @@ export class ChatManagementComponent implements OnInit {
 
         // Fetch chat history after creating the chat
         this.chatService.fetchChatHistory(chatId);
+        this.joinChat(chatId);
       },
       error: this.handleError
     });
   }
 
-  sendMessage(): void {
+sendMessage(): void {
     if (!this.Message || !this.selectedUserId || !this.currentChatId) {
       console.warn('Message, selected user, or current chat ID is missing.');
       return;
@@ -103,22 +157,10 @@ export class ChatManagementComponent implements OnInit {
   ReceivingMessage() {
     this.socketService.on<IMessage>('receiveMessage').subscribe(message => {
       console.log('Received message on front-end:', message);
-      this.messages.push(message);
+      this.chatHistory.push(message);
+      this.scrollToBottom();
     });
   }
-
-    // // Fetch chat history via WebSocket
-    // fetchChatHistory(chatId: string): void {
-    //   this.socketService.emit('fetchMessages', chatId);
-    // }
-
-    receiveMessagesByChatId(){
-      this.socketService.on('messagesFetched').subscribe(message =>{
-        console.log('Received chatHistory message on front-end:', message);
-        this.chatHistory.push(message)
-
-      })
-    }
 
 
   getAllUsers() {
@@ -133,22 +175,6 @@ export class ChatManagementComponent implements OnInit {
         this.loading = false;
       }
     );
-  }
-
-  onUserClick(userId: string) {
-    this.selectedUserId = userId;
-    this.createChat(userId);
-
-    this.chatService.getReceiverDataProfile(userId).subscribe({
-      next: (res: userResponse) => {
-        this.receiverData = Array.isArray(res.data) ? res.data : [res.data];
-      },
-      error: this.handleError
-    });
-  }
-
-  getReceiverProfileData(chat: IChatWithParticipantDetails) {
-    return chat.participantsData.find(participant => participant._id !== this.currentUserId) || null;
   }
 
   getUserId() {
@@ -168,6 +194,129 @@ export class ChatManagementComponent implements OnInit {
     console.error('An error occurred:', error);
   }
 
+  getUserNameById(userId: string): string {
+    const user = this.Users.find(u => u._id === userId);
+    return user ? user.name : 'Unknown User';
+  }
+
+  getUserColor(userId: string): string {
+    return userId === this.currentUserId ? 'green' : 'blue';
+  }
+
+  joinChat(chatId: string) {
+    this.socketService.emit('join-chat', chatId)
+  }
+
+  trackByMessageId(index: number, message: IMessage): string {
+    return message._id!;
+  }
 
 
+  //Group chat starting
+  openOrCloseNewChatOrGroupChatModal() {
+    this.ngZone.run(() => {
+      this.isCreateGroupModalOpen = !this.isCreateGroupModalOpen;
+      console.log(this.isCreateGroupModalOpen);
+    });
+  }
+
+  addToGroupMember(userId: string) {
+    const index = this.groupMembers.indexOf(userId);
+    if (index === -1) {
+      this.groupMembers.push(userId);
+    } else {
+      this.groupMembers.splice(index, 1);
+    }
+    console.log('Current group members:', this.groupMembers);
+  }
+
+  isInNewGroup(userId: string): boolean {
+    return this.groupMembers.includes(userId);
+  }
+
+  createNewGroup() {
+
+    this.groupMembers = this.availableUsers
+        .filter(user => user.selected)
+        .map(user => user._id)
+        .filter((id): id is string => id !== undefined);
+    
+    console.log('Group Members:', this.groupMembers);
+
+    if (this.groupMembers.length > 0 && this.groupName) { 
+        this.chatService.createGroupChat(this.groupName, this.groupMembers).subscribe({
+            next: (response) => {
+                console.log('Group created:', response);
+                this.resetGroupCreation();
+            },
+            error: (error) => {
+                console.error('Error creating group:', error);
+            }
+        });
+    } else {
+        console.warn('No users selected for the group or group name is empty.');
+    }
+}
+
+  
+  
+  
+
+  private resetGroupCreation() {
+    this.newGroupForm.reset();
+    this.groupMembers = [];
+    this.isCreateGroupModalOpen = false;
+    this.newGroupChatModal = false;
+    this.availableUsers = [];
+    this.getAllUsers();
+  }
+
+  searchToStartOrCreateNewGroupChatOrChat(event: KeyboardEvent) {
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+    this.availableUsers = this.Users.filter(user => 
+      user.name.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  getUsersDetailsUsingGroup() {
+    this.chatService.GetAllUsers().subscribe({
+      next: (res: userResponse) => {
+        console.log(res.data);
+        
+        this.availableUsers = res.data;
+      },
+      error: (err) => {
+        console.error('Error fetching users', err);
+      }
+    });
+  }
+
+  userSelectingInGroup(user: User){
+    if (user.selected) {
+      console.log(`User selected: ${user.name}`);
+    } else {
+      console.log(`User deselected: ${user.name}`);
+    }
+  }
+
+  getUserGroupChats() {
+    this.chatService.getUserGroupChats().subscribe({
+      next: (res: userResponse) => {
+        this.groupChats = res.data; 
+        console.log(this.groupChats);
+        
+      },
+      error: this.handleError
+    });
+  }
+
+  selectGroupChat(chatId: string) {
+    this.currentChatId = chatId;
+    this.messages = [];
+    this.chatHistory = [];
+    
+    this.chatService.fetchChatHistory(chatId);
+    this.joinChat(chatId);
+  }
+  
 }

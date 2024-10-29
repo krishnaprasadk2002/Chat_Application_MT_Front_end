@@ -37,6 +37,8 @@ export class ChatManagementComponent implements OnInit, AfterViewInit, OnDestroy
   availableUsers: User[] = [];
   groupName!:string
   groupChats:any[]=[]
+  isGroupChat: boolean = false;
+
   
 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
@@ -88,14 +90,12 @@ ngAfterViewInit(): void {
 }
 
 private scrollToBottom(): void {
-  if (this.chatContainer && this.chatContainer.nativeElement) {
-    try {
-      this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-    } catch (err) {
-      console.error('Scroll error:', err);
-    }
-  }
+  this.chatContainer?.nativeElement.scrollTo({
+    top: this.chatContainer.nativeElement.scrollHeight,
+    behavior: 'smooth'
+  });
 }
+
 
 ngOnDestroy() {
   this.subscriptions.unsubscribe();
@@ -107,7 +107,9 @@ ngOnDestroy() {
     this.selectedUserId = userId;
     this.messages = [];
     this.chatHistory = [];
+    this.isGroupChat = false; 
     this.createChat(userId);
+  
 
     // Fetch receiver profile
     this.chatService.getReceiverDataProfile(userId).subscribe({
@@ -132,33 +134,52 @@ ngOnDestroy() {
     });
   }
 
-sendMessage(): void {
-    if (!this.Message || !this.selectedUserId || !this.currentChatId) {
-      console.warn('Message, selected user, or current chat ID is missing.');
+  sendMessage(): void {
+    if (!this.Message || !this.currentChatId) {
+      console.warn('Message or chat ID is missing.');
       return;
     }
-
+  
     const messageData: IMessage = {
       chatId: this.currentChatId,
       senderId: this.currentUserId || '',
-      receiverId: this.selectedUserId,
+      receiverId: this.isGroupChat ? '' : this.selectedUserId || '',
       message: this.Message,
       type: 'text',
       isRead: false,
       createdAt: new Date(),
     };
-
-    // Emit WebSocket
-    this.socketService.emit('sendMessage', messageData);
-    console.log(messageData);
-    this.Message = '';
+  
+    if (this.isGroupChat) {
+      // Emit group message
+      this.socketService.emit('sendGroupMessage', messageData);
+    } else {
+      // Emit one-to-one message
+      this.socketService.emit('sendMessage', messageData);
+    }
+  
+    this.Message = ''; 
+    this.scrollToBottom(); 
   }
+  
 
   ReceivingMessage() {
+    // Listening for one-to-one messages
     this.socketService.on<IMessage>('receiveMessage').subscribe(message => {
-      console.log('Received message on front-end:', message);
-      this.chatHistory.push(message);
-      this.scrollToBottom();
+      if (message.chatId === this.currentChatId && !this.isGroupChat) {
+        console.log('Received direct message:', message);
+        this.chatHistory.push(message);
+        this.scrollToBottom();
+      }
+    });
+  
+    // Listening for group messages
+    this.socketService.on<IMessage>('receiveGroupMessage').subscribe(message => {
+      if (message.chatId === this.currentChatId && this.isGroupChat) {
+        console.log('Received group message:', message);
+        this.chatHistory.push(message);
+        this.scrollToBottom();
+      }
     });
   }
 
@@ -309,14 +330,22 @@ sendMessage(): void {
       error: this.handleError
     });
   }
-
   selectGroupChat(chatId: string) {
     this.currentChatId = chatId;
+    this.groupSocketJoin(chatId)
     this.messages = [];
     this.chatHistory = [];
+    this.isGroupChat = true; 
     
     this.chatService.fetchChatHistory(chatId);
     this.joinChat(chatId);
   }
+
+
+  groupSocketJoin(chatId:string){
+    console.log('join group chat Id',chatId);
+    this.socketService.emit('joinGroupChat',chatId)
+  }
+  
   
 }

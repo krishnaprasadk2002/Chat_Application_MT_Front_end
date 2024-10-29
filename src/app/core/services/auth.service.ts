@@ -24,5 +24,8 @@ userLogin(email: string, password: string): Observable<LoginResponse> {
   return this.http.post<LoginResponse>(`${this.baseUrl}/user/login`, { email, password },{ withCredentials: true });
 }
 
+isAuth():Observable<boolean>{
+  return this.http.get<boolean>(`${this.baseUrl}/user/isAuth`)
+}
 
 }
